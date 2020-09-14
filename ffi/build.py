@@ -143,9 +143,13 @@ def main_posix(kind, library_ext):
             raise RuntimeError(msg)
 
     # Get LLVM information for building
-    libs = run_llvm_config(llvm_config, "--system-libs --libs all".split())
+    libs = run_llvm_config(llvm_config, "--system-libs --libs all".split()).split()
+    for i, lib in enumerate(libs):
+        if lib.startswith("-lLLVM"):
+            libs[i] = lib + "_pic"
+
     # Normalize whitespace (trim newlines)
-    os.environ['LLVM_LIBS'] = ' '.join(libs.split())
+    os.environ['LLVM_LIBS'] = ' '.join(libs)
 
     cxxflags = run_llvm_config(llvm_config, ["--cxxflags"])
     # on OSX cxxflags has null bytes at the end of the string, remove them
